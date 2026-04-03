@@ -24,16 +24,11 @@ def _run_migrations(engine):
     cfg.set_main_option("sqlalchemy.url", TEST_DB_URL)
     os.environ["DATABASE_URL"] = TEST_DB_URL
 
-    # Ensure the app config points to the test DB (for background tasks etc.)
-    from app.config import settings
-    settings.database_url = TEST_DB_URL
-
     # Drop everything first to ensure a clean slate, then run migrations.
     from app.database import Base
     from app.models import Vehicle, Transfer, TransferStatusHistory, Notification  # noqa: F401
     Base.metadata.drop_all(engine)
 
-    # Reset alembic version tracking
     with engine.connect() as conn:
         conn.execute(text("DROP TABLE IF EXISTS alembic_version"))
         conn.commit()
@@ -55,8 +50,24 @@ def clean_db(engine, _run_migrations):
 
 
 @pytest.fixture()
+def db_session(clean_db):
+    """A plain SQLAlchemy session against the test database."""
+    TestSession = sessionmaker(bind=clean_db)
+    session = TestSession()
+    try:
+        yield session
+    finally:
+        session.close()
+
+
+@pytest.fixture()
 def client(clean_db):
-    """Starlette TestClient wired to the test database."""
+    """Starlette TestClient wired to the test database.
+
+    Overrides both the FastAPI get_db dependency AND the SessionLocal used
+    by background tasks (notification_service), so everything hits the test DB.
+    """
+    from unittest.mock import patch
     from starlette.testclient import TestClient
     from app.main import app
     from app.database import get_db
@@ -71,6 +82,11 @@ def client(clean_db):
             session.close()
 
     app.dependency_overrides[get_db] = override_get_db
-    with TestClient(app) as c:
-        yield c
+
+    # Patch SessionLocal in the notification service so background tasks
+    # also use the test database instead of the production SessionLocal.
+    with patch("app.services.notification_service.SessionLocal", TestSession):
+        with TestClient(app) as c:
+            yield c
+
     app.dependency_overrides.clear()

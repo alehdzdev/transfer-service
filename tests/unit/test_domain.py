@@ -3,7 +3,7 @@
 import pytest
 
 from app.domain import validate_in_progress_fields, validate_status_transition
-from app.models import TransferStatus
+from app.enums import TransferStatus
 
 
 class TestStatusTransitions:

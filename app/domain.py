@@ -1,6 +1,6 @@
 """Pure business rules — no DB, no HTTP. Testable in isolation."""
 
-from app.models import TransferStatus
+from app.enums import TransferStatus
 
 # Valid status transitions: current_status -> set of allowed next statuses.
 VALID_TRANSITIONS: dict[TransferStatus, set[TransferStatus]] = {

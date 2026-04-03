@@ -1,4 +1,3 @@
-import enum
 from datetime import datetime
 
 from sqlalchemy import (
@@ -14,26 +13,7 @@ from sqlalchemy import (
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
-
-
-class VehicleType(str, enum.Enum):
-    SEDAN = "SEDAN"
-    VAN = "VAN"
-    BUS = "BUS"
-
-
-class VehicleStatus(str, enum.Enum):
-    AVAILABLE = "AVAILABLE"
-    IN_USE = "IN_USE"
-    MAINTENANCE = "MAINTENANCE"
-
-
-class TransferStatus(str, enum.Enum):
-    PENDING = "PENDING"
-    CONFIRMED = "CONFIRMED"
-    IN_PROGRESS = "IN_PROGRESS"
-    COMPLETED = "COMPLETED"
-    CANCELLED = "CANCELLED"
+from app.enums import TransferStatus, VehicleStatus, VehicleType
 
 
 class Vehicle(Base):

@@ -2,7 +2,7 @@ from datetime import datetime
 
 from pydantic import BaseModel, Field
 
-from app.models import TransferStatus, VehicleStatus, VehicleType
+from app.enums import TransferStatus, VehicleStatus, VehicleType
 
 
 # --- Vehicle ---
