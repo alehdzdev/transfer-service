@@ -1,16 +1,19 @@
-# --- Build stage: install dependencies into a layer that caches well ---
-FROM python:3.12-slim AS base
+FROM python:3.12-slim
 
 WORKDIR /app
 
-# Install deps first (layer caches unless pyproject.toml changes)
+# 1. Install dependencies only (this layer caches until pyproject.toml changes).
+#    Create a minimal placeholder so `pip install .` can resolve deps.
 COPY pyproject.toml .
-RUN pip install --no-cache-dir .
+RUN mkdir app && touch app/__init__.py \
+    && pip install --no-cache-dir . \
+    && rm -rf app
 
-# Copy application code
+# 2. Copy real application code and install the package properly.
 COPY alembic.ini .
 COPY alembic/ alembic/
 COPY app/ app/
+RUN pip install --no-cache-dir .
 
 # Non-root user for production security
 RUN useradd --create-home appuser
