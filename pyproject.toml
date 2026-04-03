@@ -1,0 +1,32 @@
+[project]
+name = "transfer-service"
+version = "0.1.0"
+description = "Airport transfer availability & booking service"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.115,<1",
+    "uvicorn[standard]>=0.34,<1",
+    "sqlalchemy>=2.0,<3",
+    "pymysql>=1.1,<2",
+    "cryptography>=44,<45",
+    "alembic>=1.14,<2",
+    "pydantic>=2.0,<3",
+    "pydantic-settings>=2.0,<3",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest>=8,<9",
+    "pytest-asyncio>=0.25,<1",
+    "httpx>=0.28,<1",
+]
+
+[tool.setuptools.packages.find]
+include = ["app*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "unit: Unit tests (no DB, no HTTP)",
+    "integration: Integration tests (full stack, real MySQL)",
+]

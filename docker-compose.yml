@@ -1,0 +1,47 @@
+services:
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: transfers
+      MYSQL_USER: app
+      MYSQL_PASSWORD: apppass
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  db-test:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: transfers_test
+      MYSQL_USER: app
+      MYSQL_PASSWORD: apppass
+    ports:
+      - "3307:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: mysql+pymysql://app:apppass@db:3306/transfers
+    depends_on:
+      db:
+        condition: service_healthy
+    command: >
+      sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"
+
+volumes:
+  mysql_data:
