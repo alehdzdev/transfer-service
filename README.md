@@ -2,6 +2,38 @@
 
 Backend service for a DMC that manages airport transfer bookings. Built with FastAPI, MySQL, SQLAlchemy, and Alembic.
 
+## Project structure
+
+```
+app/
+├── main.py                     # FastAPI app, middleware, error handlers
+├── config.py                   # Pydantic Settings (DB, logging, app)
+├── database.py                 # SQLAlchemy engine + session factory
+├── enums.py                    # Domain enums (no ORM dependency)
+├── models.py                   # SQLAlchemy ORM models
+├── schemas.py                  # Pydantic request/response models
+├── domain.py                   # Pure business rules (status transitions)
+├── exceptions.py               # Domain exceptions (NotFound, Conflict, etc.)
+├── error_handlers.py           # Maps domain exceptions → HTTP responses
+├── middleware.py               # Request logging middleware
+├── routers/
+│   ├── vehicles.py             # Vehicle + availability endpoints
+│   └── transfers.py            # Transfer lifecycle endpoints
+└── services/
+    ├── vehicle_service.py      # Vehicle DB logic + availability queries
+    ├── transfer_service.py     # Booking lifecycle + status management
+    └── notification_service.py # Background confirmation notifications
+alembic/versions/
+├── 001_initial_schema.py       # Tables + indexes
+└── 002_add_transfer_driver_fields.py
+tests/
+├── unit/
+│   ├── test_domain.py          # Status transition rules (no DB)
+│   └── test_services.py        # Service layer (domain exceptions)
+└── integration/
+    └── test_api.py             # Full HTTP stack against real MySQL
+```
+
 ## How to run locally
 
 ### Prerequisites
@@ -35,6 +67,27 @@ pytest -m integration
 # All tests
 pytest
 ```
+
+## Architecture decisions
+
+### Layered architecture
+
+```
+Routers → Services → Domain logic
+   ↕          ↕
+Schemas    Models/DB
+```
+
+- **Routers** are thin: parse HTTP, call a service, return a response.
+- **Services** own all DB interaction and orchestration. They raise domain exceptions (`NotFoundError`, `ConflictError`, `ValidationError`), never `HTTPException`.
+- **Domain** (`domain.py`) contains pure business rules with no dependencies — testable without DB or HTTP.
+- **Error handlers** map domain exceptions to structured HTTP responses, keeping HTTP concerns out of business logic.
+
+This means the same service code works behind a CLI, a message consumer, or any other entry point.
+
+### Background tasks
+
+When a transfer is confirmed, a `BackgroundTask` logs a notification. The notification service uses the existing `SessionLocal` factory rather than creating a new engine per invocation (which would leak connection pools under load).
 
 ## Index choices and reasoning
 
@@ -92,3 +145,15 @@ CANCELLED  CANCELLED
 - Transitioning to IN_PROGRESS requires `driver_name` in the request body.
 - Every status change is logged in the `transfer_status_history` table.
 - When a transfer is confirmed, a background task logs a notification to the `notifications` table.
+
+## Configuration
+
+All settings are configurable via environment variables:
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `DATABASE_URL` | `mysql+pymysql://app:apppass@localhost:3306/transfers` | SQLAlchemy connection string |
+| `DB_POOL_SIZE` | `5` | Connection pool size |
+| `DB_MAX_OVERFLOW` | `10` | Max overflow connections |
+| `LOG_LEVEL` | `INFO` | Python logging level |
+| `DEBUG` | `false` | Debug mode |
