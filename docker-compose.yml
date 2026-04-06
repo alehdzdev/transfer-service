@@ -35,13 +35,15 @@ services:
     build: .
     ports:
       - "8000:8000"
+    volumes:
+      - ./app:/app/app
     environment:
       DATABASE_URL: mysql+pymysql://app:apppass@db:3306/transfers
     depends_on:
       db:
         condition: service_healthy
     command: >
-      sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"
+      sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
 
 volumes:
   mysql_data:
