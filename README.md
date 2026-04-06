@@ -68,6 +68,17 @@ pytest -m integration
 pytest
 ```
 
+### Test coverage
+
+```bash
+# Run all tests with coverage report
+pytest --cov=app --cov-report=term-missing
+
+# Generate an HTML report
+pytest --cov=app --cov-report=html
+# Open htmlcov/index.html in your browser
+```
+
 ## Architecture decisions
 
 ### Layered architecture
