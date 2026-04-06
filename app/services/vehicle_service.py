@@ -3,6 +3,7 @@
 from datetime import date, datetime, timedelta
 
 from sqlalchemy import text
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.enums import VehicleStatus
@@ -14,7 +15,13 @@ from app.schemas import VehicleCreate
 def create_vehicle(db: Session, payload: VehicleCreate) -> Vehicle:
     vehicle = Vehicle(**payload.model_dump())
     db.add(vehicle)
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise ConflictError(
+            f"A vehicle with plate number '{payload.plate_number}' already exists."
+        )
     db.refresh(vehicle)
     return vehicle
 
