@@ -1,6 +1,8 @@
 import logging
+from pathlib import Path
 
 from fastapi import FastAPI
+from fastapi.responses import HTMLResponse
 
 from app.config import settings
 from app.error_handlers import register_error_handlers
@@ -25,3 +27,9 @@ app.add_middleware(RequestLoggingMiddleware)
 app.include_router(vehicles_router)
 app.include_router(availability_router)
 app.include_router(transfers_router)
+
+
+@app.get("/", response_class=HTMLResponse, include_in_schema=False)
+def index():
+    html = Path(__file__).parent / "templates" / "index.html"
+    return HTMLResponse(html.read_text())

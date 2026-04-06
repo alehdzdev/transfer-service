@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transfer Service</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 24px;
+        }
+
+        .container {
+            text-align: center;
+            max-width: 460px;
+            width: 100%;
+        }
+
+        .icon {
+            font-size: 3.5rem;
+            margin-bottom: 12px;
+        }
+
+        h1 {
+            font-size: clamp(1.6rem, 4vw, 2rem);
+            margin: 12px 0 4px;
+            color: #f8fafc;
+        }
+
+        .subtitle {
+            font-size: clamp(0.95rem, 3vw, 1rem);
+            color: #94a3b8;
+            margin: 6px 0;
+        }
+
+        .tech {
+            display: inline-flex;
+            gap: 8px;
+            margin-top: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .tech span {
+            background: #1e293b;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: #38bdf8;
+            border: 1px solid #334155;
+        }
+
+        .buttons {
+            margin-top: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 12px 18px;
+            background: #1e293b;
+            color: #e2e8f0;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+            border: 1px solid #334155;
+        }
+
+        .btn:hover {
+            background: #38bdf8;
+            color: #0f172a;
+            border-color: #38bdf8;
+        }
+
+        footer {
+            margin-top: 28px;
+            font-size: 0.8rem;
+            color: #475569;
+        }
+
+        @media (min-width: 640px) {
+            .buttons {
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .btn {
+                min-width: 140px;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+        crossorigin="anonymous" />
+</head>
+
+<body>
+    <div class="container">
+        <div class="icon">🚐</div>
+
+        <h1>Transfer Service</h1>
+        <p class="subtitle">Airport transfer bookings & vehicle availability</p>
+
+        <div class="tech">
+            <span>FastAPI</span>
+            <span>MySQL</span>
+            <span>SQLAlchemy</span>
+        </div>
+
+        <div class="buttons">
+            <a href="/docs" target="_blank" class="btn"><i class="fa-solid fa-book"></i> Swagger</a>
+            <a href="/redoc" target="_blank" class="btn"><i class="fa-solid fa-file-lines"></i> ReDoc</a>
+            <a href="https://github.com/yourusername/transfer-service" target="_blank" class="btn">
+                <i class="fa-brands fa-github"></i>
+                GitHub
+            </a>
+        </div>
+
+        <footer>
+            By Ale Hernandez
+        </footer>
+    </div>
+</body>
+
+</html>
