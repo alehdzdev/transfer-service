@@ -16,6 +16,8 @@ services:
       timeout: 5s
       retries: 10
       start_period: 10s
+    networks:
+      - trafic_service_network
 
   db-test:
     image: mysql:8.0
@@ -32,11 +34,14 @@ services:
       timeout: 5s
       retries: 10
       start_period: 10s
+    networks:
+      - trafic_service_network
 
-  api:
+  transfer-service-web:
     build: .
-    ports:
-      - "8000:8000"
+    networks:
+      - trafic_service_network
+      - traefik
     volumes:
       - ./app:/app/app
     environment:
@@ -46,6 +51,19 @@ services:
         condition: service_healthy
     command: >
       sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.transferservice.rule=Host(`transfer-service.alehdzdev.com`)"
+      - "traefik.http.routers.transferservice.entrypoints=websecure"
+      - "traefik.http.routers.transferservice.tls.certresolver=le"
+      - "traefik.http.services.transferservice.loadbalancer.server.port=8000"
+      - "traefik.docker.network=traefik"
 
 volumes:
   mysql_data:
+
+networks:
+  trafic_service_network:
+    driver: bridge
+  traefik:
+    external: true
