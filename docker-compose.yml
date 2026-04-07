@@ -11,10 +11,11 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "app", "-papppass"]
       interval: 5s
       timeout: 5s
       retries: 10
+      start_period: 10s
 
   db-test:
     image: mysql:8.0
@@ -26,10 +27,11 @@ services:
     ports:
       - "3307:3306"
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "app", "-papppass"]
       interval: 5s
       timeout: 5s
       retries: 10
+      start_period: 10s
 
   api:
     build: .
